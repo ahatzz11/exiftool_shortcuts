@@ -1,0 +1,73 @@
+
+########## PROCESS ##########
+
+#
+# This requires the following data to be correct:
+# - jpg - EXIF:DateTimeOriginal
+# - gif - XMP:DateTimeOriginal
+# - mp4 - QuickTime:CreateDate
+#
+#
+
+# clears ALL FILES
+### Caption-Abstract property, which can be used as a decription on GP
+### Photoshop: group, which also removes IPTC information, which clears the (derived) Composite:DateTimeCreated and Composite:DateTimeCreated tags
+clearbadinfo() { removecaption $1; clearphotoshopinfo $1; echo_badinfo }
+    removecaption() { exif -U -m "-Caption-Abstract=" $1; echo "Caption-Abstract gone"}
+    clearphotoshopinfo() { exif -Photoshop:All= $1 }
+
+# JPG - all extensions are lowercased within this.
+## this removes xmp data
+# - addinfo
+# -- cleanup
+# --- make JPG to jpg
+# --- remove XMP data from jpg
+add_jpginfo() { jpg_cleanup $1 ; exif -m -if '$FileExtension eq "jpg"' "-jpgDates<EXIF:DateTimeOriginal" $1 }
+    jpg_cleanup() { jpg_lower $1 ; jpg_removeXMP $1 }
+        jpg_lower() { exif -if '$FileExtension eq "JPG"' -filename=rename/%f.jpg $1; exif -ext jpg -r -Directory=. $1; rm -rf rename/}
+        jpg_removeXMP() { exif -m -if '$FileExtension eq "jpg"' -XMP:All= $1 }
+
+# GIF - all extensions are lowercased within this.
+##
+# - addinfo
+# -- cleanup
+# --- make GIF to gif
+# --- remove EXIF data from gif
+add_gifinfo() { gif_cleanup $1 ; exif -m -if '$FileExtension eq "gif"' "-gifDates<XMP:DateTimeOriginal" $1 }
+    gif_cleanup() { gif_lower $1 ; gif_removeEXIF $1 }
+        gif_lower() { exif -if '$FileExtension eq "GIF"' -filename=rename/%f.gif $1; exif -ext gif -r -Directory=. $1; rm -rf rename/}
+        gif_removeEXIF() { exif -m -if '$FileExtension eq "gif"' -EXIF:All= $1 }
+
+# MP4 - all extensions are lowercased within this.
+##
+# - addinfo
+# -- cleanup
+# --- make MP4 to mp4
+# --- remove XMP data from mp4
+# --- remove EXIF data from mp4
+add_mp4info() { mp4_cleanup $1 ; exif -m -if '$FileExtension eq "mp4"' "-MP4Dates<QuickTime:CreateDate" $1 }
+    mp4_cleanup() { mp4_lower $1 ; mp4_removeXMP $1 ; mp4_removeEXIF $1 }
+        mp4_lower() { exif -if '$FileExtension eq "MP4"' -filename=rename/%f.mp4 $1; exif -ext mp4 -r -Directory=. $1; rm -rf rename/}
+        mp4_removeXMP() { exif -m -if '$FileExtension eq "mp4"' -XMP:All= $1 }
+        mp4_removeEXIF() { exif -m -if '$FileExtension eq "mp4"' -EXIF:All= $1 }
+
+# deletes the .jpg_original copy of the file
+deleteoriginals() { exif -delete_original! . ; echo_originals }
+
+# see AllDates
+seealldates() { exiftool -s -g -AllDates $1 }
+seeallinfo() { exif -s -g $1 }
+
+l
+# alias countXMPDateTimeOriginal="printf \"===============\nfiles with XMP:DateTimeOriginal: \"; exif -s -g -XMP:AllDates . | grep 'DateTimeOriginal' | wc -l"
+countEXIFDateTimeOriginal() { printf "===============\nfiles with EXIF:DateTimeOriginal: "; exif -s -g -EXIF:DateTimeOriginal . | grep 'DateTimeOriginal' | wc -l }
+countXMPDateTimeOriginal() { printf "===============\nfiles with XMP:DateTimeOriginal: "; exif -s -g -XMP:DateTimeOriginal . | grep 'DateTimeOriginal' | wc -l }
+
+# - removes Caption-Abstract &  photoshop info
+# - sets all jpg extensions to ".jpg" and mp4 extensions to "*.mp4"
+# - sets all dates to DateTimeOriginal
+# - deletes original copies
+# - OFF - prints out all dates
+# - prints out number of files with DateTimeOriginal
+# - done
+doeverything() { start; clearbadinfo $1; add_jpginfo $1; add_gifinfo $1; add_mp4info $1; deleteoriginals; middlebreak; countEXIFDateTimeOriginal; countXMPDateTimeOriginal}
