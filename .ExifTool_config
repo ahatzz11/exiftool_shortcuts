@@ -66,14 +66,25 @@
     'File:FileModifyDate',
     'EXIF:ModifyDate',
     'EXIF:DateTimeOriginal',
-    'EXIF:CreateDate',],
+    'EXIF:CreateDate'
+    ],
+
+    PNGDates=> [
+    'File:FileModifyDate',
+    'PNG:CreateDate',
+    'PNG:ModDate',
+    'PNG:ModifyDate',
+    'PNG:CreationTime',
+    'PNG:Timestamp'
+    ],
 
     GIFDates=> [
     'File:FileModifyDate',
     'XMP:DateTimeOriginal',
     'XMP:DateCreated',
     'XMP:CreateDate',
-    'XMP:ModifyDate'],
+    'XMP:ModifyDate'
+    ],
 
     MP4Dates=> [
     'File:FileModifyDate',
@@ -85,7 +96,7 @@
     'QuickTime:TrackCreateDate',
     'QuickTime:TrackModifyDate',
     'QuickTime:MediaCreateDate',
-    'QuickTime:MediaModifyDate',
+    'QuickTime:MediaModifyDate'
     ],
 
     AllDates=> [
@@ -93,6 +104,11 @@
     'EXIF:ModifyDate',
     'EXIF:DateTimeOriginal',
     'EXIF:CreateDate',
+    'PNG:CreateDate',
+    'PNG:ModDate',
+    'PNG:ModifyDate',
+    'PNG:CreationTime',
+    'PNG:Timestamp',
     'XMP:DateTimeOriginal',
     'XMP:DateCreated',
     'XMP:CreateDate',
@@ -102,7 +118,8 @@
     'QuickTime:TrackCreateDate',
     'QuickTime:TrackModifyDate',
     'QuickTime:MediaCreateDate',
-    'QuickTime:MediaModifyDate',]
+    'QuickTime:MediaModifyDate'
+    ]
 );
 
 # NOTE: All tag names used in the following tables are case sensitive.
