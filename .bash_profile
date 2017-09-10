@@ -7,8 +7,7 @@ export PATH
 alias ll="ls -laFgh"
 eval $(thefuck --alias)
 
-
-source ~/.exif_tools
+source ~/.bash_stuff/.exif_tools
 
 # -------------------------------
 
@@ -26,6 +25,18 @@ alias done="say \"done\""
 alias echo_badinfo="echo \"=============== all bad info is gone! ===============\""
 alias echo_dateset="echo \"=============== dates set! ===============\""
 alias echo_originals="printf \"=============== originals deleted! ===============\""
+
+
+alias echo_jpgstart="echo \"=============== jpg started! ===============\"; "
+alias echo_gifstart="echo \"=============== gif started! ===============\"; "
+alias echo_mp4start="echo \"=============== mp4 started! ===============\"; "
+alias echo_pngstart="echo \"=============== png started! ===============\"; "
+
+alias echo_jpgdone="echo \"=============== jpg finished! ===============\"; "
+alias echo_gifdone="echo \"=============== gif finished! ===============\"; "
+alias echo_mp4done="echo \"=============== mp4 finished! ===============\"; "
+alias echo_pngdone="echo \"=============== png finished! ===============\"; "
+
 
 # unused
 
