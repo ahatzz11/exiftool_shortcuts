@@ -16,6 +16,7 @@ clearbadinfo() { removecaption $1; removeusercomment $1; clearphotoshopinfo $1; 
     removecaption() { exif -U -m "-Caption-Abstract=" $1; echo "Caption-Abstract gone" }
     removeusercomment() { exif -U -m "-UserComment=" $1; echo "UserComment gone" }
     clearphotoshopinfo() { exif -Photoshop:All= $1; echo "Photoshop info gone" }
+    removeFileComment() { exif -U -m "-File:Comment=" $1; echo "File:Comment gone" }
 
 
 # JPG - all extensions are lowercased within this.
@@ -25,12 +26,14 @@ clearbadinfo() { removecaption $1; removeusercomment $1; clearphotoshopinfo $1; 
 # --- make JPG to jpg, JPEG to jpg, and jpeg to jpg
 # --- remove XMP data from jpg
 # --- remove ICC data from jpg
-add_jpginfo() { echo_jpgstart; jpg_cleanup $1 ; exif -m -if '$FileExtension eq "jpg"' "-jpgDates<EXIF:DateTimeOriginal" $1; echo_jpgdone }
-    jpg_cleanup() { jpg_lower $1 ; jpeg_clean $1; JPEG_clean $1; jpg_removeXMP $1 jpg_removeICC $1 }
+add_jpginfo() { echo_jpgstart; jpg_cleanup $1; jpg_normalinfo $1; echo_jpgdone }
+    jpg_normalinfo() { exif -m -if '$FileExtension eq "jpg"' "-JPGDates<EXIF:DateTimeOriginal" $1 }
+
+    jpg_cleanup() { jpg_lower $1; jpeg_clean $1; JPEG_clean $1; jpg_removeXMP $1; jpg_removeICC $1 e}
         jpeg_clean() { exif -if '$FileExtension eq "jpeg"' -filename=rename/%f.jpg $1; exif -ext jpg -r -Directory=. $1; rm -rf rename/}
         JPEG_clean() { exif -if '$FileExtension eq "JPEG"' -filename=rename/%f.jpg $1; exif -ext jpg -r -Directory=. $1; rm -rf rename/}
         jpg_lower() { exif -if '$FileExtension eq "JPG"' -filename=rename/%f.jpg $1; exif -ext jpg -r -Directory=. $1; rm -rf rename/}
-        jpg_removeXMP() { exif -m -if '$FileExtension eq "jpg"' -XMP:All= $1 }
+        # jpg_removeXMP() { exif -m -if '$FileExtension eq "jpg"' -XMP:All= $1 }
         jpg_removeICC() { exif -m -if '$FileExtension eq "jpg"' -ICC_Profile:All= $1 }
 
 # PNG - all extensions are lowercased within this.
@@ -38,13 +41,15 @@ add_jpginfo() { echo_jpgstart; jpg_cleanup $1 ; exif -m -if '$FileExtension eq "
 # - addinfo
 # -- cleanup
 # --- make PNG to png
+# --- remove EXIF data from png
 # --- remove XMP data from png
 # --- remove ICC data from png
-add_pnginfo() { echo_pngstart; png_cleanup $1 ; exif -m -if '$FileExtension eq "png"' "-pngDates<PNG:CreateDate" $1; echo_pngdone }
-    png_cleanup() { png_lower $1; png_removeXMP $1 png_removeICC $1 }
+add_pnginfo() { echo_pngstart; png_cleanup $1; exif -m -if '$FileExtension eq "png"' "-PNGDates<PNG:CreateDate" $1; echo_pngdone }
+    png_cleanup() { png_lower $1; png_removeEXIF $1}
         png_lower() { exif -if '$FileExtension eq "PNG"' -filename=rename/%f.png $1; exif -ext png -r -Directory=. $1; rm -rf rename/}
-        png_removeXMP() { exif -m -if '$FileExtension eq "png"' -XMP:All= $1 }
-        png_removeICC() { exif -m -if '$FileExtension eq "png"' -ICC_Profile:All= $1 }
+        png_removeEXIF() { exif -m -if '$FileExtension eq "png"' -EXIF:All= $1 }
+        # png_removeXMP() { exif -m -if '$FileExtension eq "png"' -XMP:All= $1 }
+        # png_removeICC() { exif -m -if '$FileExtension eq "png"' -ICC_Profile:All= $1 }
 
 # GIF - all extensions are lowercased within this.
 ##
@@ -52,7 +57,8 @@ add_pnginfo() { echo_pngstart; png_cleanup $1 ; exif -m -if '$FileExtension eq "
 # -- cleanup
 # --- make GIF to gif
 # --- remove EXIF data from gif
-add_gifinfo() { echo_gifstart; gif_cleanup $1 ; exif -m -if '$FileExtension eq "gif"' "-gifDates<XMP:DateTimeOriginal" $1; echo_gifdone }
+# add_gifinfo() { echo_gifstart; gif_cleanup $1 ; exif -m -if '$FileExtension eq "gif"' "-gifDates<XMP:DateTimeOriginal" $1; echo_gifdone }
+add_gifinfo() { echo_gifstart; gif_cleanup $1 ; exif -m -if '$FileExtension eq "gif"' "-gifDates<File:FileModifyDate" $1; echo_gifdone }
     gif_cleanup() { gif_lower $1 ; gif_removeEXIF $1 }
         gif_lower() { exif -if '$FileExtension eq "GIF"' -filename=rename/%f.gif $1; exif -ext gif -r -Directory=. $1; rm -rf rename/}
         gif_removeEXIF() { exif -m -if '$FileExtension eq "gif"' -EXIF:All= $1 }
@@ -79,10 +85,10 @@ deleteoriginals() { exif -delete_original! . ; echo_originals }
 seealldates() { exiftool -s -g -AllDates $1 }
 seeallinfo() { exif -s -g $1 }
 
-countEXIFDateTimeOriginal() { printf "===============\nfiles with EXIF:DateTimeOriginal (jpg): "; exif -s -g -EXIF:DateTimeOriginal . | grep 'DateTimeOriginal' | wc -l }
-countXMPDateTimeOriginal() { printf "===============\nfiles with XMP:DateTimeOriginal (gif): "; exif -s -g -XMP:DateTimeOriginal . | grep 'DateTimeOriginal' | wc -l }
-countQuickTimeCreateDate() { printf "===============\nfiles with QuickTime:CreateDate (mp4): "; exif -s -g -QuickTime:CreateDate . | grep 'CreateDate' | wc -l }
-countPNGCreateDate() { printf "===============\nfiles with PNG:CreateDate (mp4)      : "; exif -s -g -PNG:CreateDate . | grep 'CreateDate' | wc -l }
+countEXIFDateTimeOriginal() { printf "===============\nfiles with EXIF:DateTimeOriginal (jpg): "; exif -s -m -g -EXIF:DateTimeOriginal . | grep 'DateTimeOriginal' | wc -l }
+countXMPDateTimeOriginal() { printf "===============\nfiles with XMP:DateTimeOriginal (gif): "; exif -s -m -g -XMP:DateTimeOriginal . | grep 'DateTimeOriginal' | wc -l }
+countQuickTimeCreateDate() { printf "===============\nfiles with QuickTime:CreateDate (mp4): "; exif -s -m -g -QuickTime:CreateDate . | grep 'CreateDate' | wc -l }
+countPNGCreateDate() { printf "===============\nfiles with PNG:CreateDate (mp4) : "; exif -s -g -PNG:CreateDate . | grep 'CreateDate' | wc -l }
 countTotal() { printf "===============\n\t\tTotal files: \t\t"; exif -s -g -File:MIMEType . | grep 'MIMEType' | wc -l }
 countAll() { countEXIFDateTimeOriginal; countXMPDateTimeOriginal; countQuickTimeCreateDate; countPNGCreateDate; countTotal; }
 

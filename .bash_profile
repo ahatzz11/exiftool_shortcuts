@@ -4,19 +4,21 @@
 PATH="/Library/Frameworks/Python.framework/Versions/3.4/bin:${PATH}"
 export PATH
 
-alias ll="ls -laFgh"
-eval $(thefuck --alias)
-
 source ~/.bash_stuff/.exif_tools
 
 # -------------------------------
 
 # EXIF STUFF
 alias exif="exiftool"
+alias open="open ."
+
 
 # regular utilities
 alias collapse="exiftool -r \"-Directory=.\" ."
 alias expandd="exiftool -d %Y/%m \"-directory<filemodifydate\" \"-directory<createdate\" \"-directory<datetimeoriginal\" ."
+
+
+
 
 # formatting
 alias start="echo \"=============== here we go! ===============\"; "
@@ -36,11 +38,18 @@ alias echo_jpgdone="echo \"=============== jpg finished! ===============\"; "
 alias echo_gifdone="echo \"=============== gif finished! ===============\"; "
 alias echo_mp4done="echo \"=============== mp4 finished! ===============\"; "
 alias echo_pngdone="echo \"=============== png finished! ===============\"; "
-
-
 # unused
 
 alias upperjpg="exiftool -if '\$FileExtension eq \"jpg\"' -filename=rename/%f.JPG .; exiftool -ext jpg -r -Directory=. .; rm -rf rename/"
+
+
+minussixjpg() {
+	exiftool -m -ext jpg "-JPGDates-=06:00:00" $1
+}
+
+minussixpng() {
+	exiftool -m -ext png "-PNGDates-=06:00:00" $1
+}
 
 # makes all extensions lowercase
 ### jpg
